@@ -56,6 +56,110 @@ export default function Dashboard() {
         return `https://imagedelivery.net/${CLOUDFLARE_HASH}/${imageId}/${variant}`;
     }
 
+    // --- Validación/compresión de imágenes antes de subir ---
+    const MAX_IMG_DIMENSION = 1600; // px (ancho o alto)
+    const MAX_IMG_BYTES_BEFORE_COMPRESS = 1600 * 1024; // ~1.6 MB
+
+    function getImageDimensions(file) {
+        return new Promise((resolve, reject) => {
+            try {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    const w = img.naturalWidth || img.width;
+                    const h = img.naturalHeight || img.height;
+                    URL.revokeObjectURL(url);
+                    resolve({ width: w, height: h });
+                };
+                img.onerror = (e) => {
+                    URL.revokeObjectURL(url);
+                    reject(e);
+                };
+                img.src = url;
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    async function compressIfNeeded(file) {
+        // Solo comprimimos por tamaño (bytes). Si excede dimensiones, se bloquea.
+        if (!file || file.size <= MAX_IMG_BYTES_BEFORE_COMPRESS) return file;
+
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+
+        const loaded = await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = url;
+        });
+
+        // eslint-disable-next-line no-unused-vars
+        const _ = loaded;
+
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+
+        // Mantener dimensiones, solo bajar peso (calidad)
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        URL.revokeObjectURL(url);
+
+        const blob = await new Promise((resolve) => {
+            // JPEG para comprimir; si falla, vuelve a PNG
+            canvas.toBlob(
+                (b) => resolve(b),
+                "image/jpeg",
+                0.82
+            );
+        });
+
+        if (!blob) return file;
+
+        const compressedFile = new File([blob], file.name.replace(/\.(png|jpg|jpeg|webp)$/i, ".jpg"), {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+        });
+
+        return compressedFile;
+    }
+
+    async function handleSelectImage(e, setter) {
+        const f = e.target.files?.[0] || null;
+        if (!f) {
+            setter(null);
+            return;
+        }
+
+        try {
+            const { width, height } = await getImageDimensions(f);
+            const maxSide = Math.max(width, height);
+
+            // Regla solicitada: bloquear si excede 1600px de ancho o alto
+            if (maxSide > MAX_IMG_DIMENSION) {
+                toast.success(`No es posible subir una imagen con dimensiones mayores a ${MAX_IMG_DIMENSION}px (actual: ${width}x${height}).`);
+                // limpiar input y estado
+                e.target.value = "";
+                setter(null);
+                return;
+            }
+
+            // Regla extra: si pesa mucho (>1.6MB), comprimimos
+            const maybeCompressed = await compressIfNeeded(f);
+            setter(maybeCompressed);
+        } catch (err) {
+            console.error("No se pudo leer la imagen:", err);
+            toast.error("No fue posible leer la imagen seleccionada");
+            e.target.value = "";
+            setter(null);
+        }
+    }
+
 
 
 
@@ -828,7 +932,7 @@ export default function Dashboard() {
                                 id="file1"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                onChange={(e) => handleSelectImage(e, setFile)}
                                 className="hidden"
                             />
                             <br />
@@ -841,7 +945,7 @@ export default function Dashboard() {
                                 id="file2"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setFile2(e.target.files?.[0] || null)}
+                                onChange={(e) => handleSelectImage(e, setFile2)}
                                 className="hidden"
                             />
                             <br />
@@ -853,7 +957,7 @@ export default function Dashboard() {
                                 id="file3"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setFile3(e.target.files?.[0] || null)}
+                                onChange={(e) => handleSelectImage(e, setFile3)}
                                 className="hidden"
                             />
                             <br />
@@ -865,7 +969,7 @@ export default function Dashboard() {
                                 id="file4"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setFile4(e.target.files?.[0] || null)}
+                                onChange={(e) => handleSelectImage(e, setFile4)}
                                 className="hidden"
                             />
                             <br />
