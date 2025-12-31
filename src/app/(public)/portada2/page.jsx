@@ -28,7 +28,9 @@ export default function Portada2() {
             <br/>
 
             <div className='mr-50 text'>
-                <ShadcnButton nombre={'Comprar'} />
+                <a href="https://wa.me/56945486466" target="_blank" rel="noopener noreferrer">
+                    <ShadcnButton nombre={'Comprar'} />
+                </a>
             </div>
 
 
