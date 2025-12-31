@@ -144,32 +144,32 @@ export default function CarruselProducto({ imagenes, imagen1, imagen2, imagen3, 
                             setActual(0);
                         }}
                     />
-
-                    {/* Flecha izquierda */}
-                    <button
-                        type="button"
-                        onClick={anterior}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-3 shadow hover:bg-white"
-                        aria-label="Imagen anterior"
-                    >
-                        <span className="text-2xl leading-none">‹</span>
-                    </button>
-
-                    {/* Flecha derecha */}
-                    <button
-                        type="button"
-                        onClick={siguiente}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-3 shadow hover:bg-white"
-                        aria-label="Imagen siguiente"
-                    >
-                        <span className="text-2xl leading-none">›</span>
-                    </button>
-
                     {/* Indicador */}
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1 text-xs text-white">
                         {actual + 1} / {imagenesOk.length}
                     </div>
                 </div>
+                {/* Flechas SIEMPRE abajo de la imagen */}
+                {thumbs.length > 1 && (
+                    <div className="flex justify-center gap-6 mt-3">
+                        <button
+                            type="button"
+                            onClick={anterior}
+                            className="rounded-full bg-white/90 p-3 shadow hover:bg-white border border-slate-200"
+                            aria-label="Imagen anterior"
+                        >
+                            <span className="text-2xl leading-none">‹</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={siguiente}
+                            className="rounded-full bg-white/90 p-3 shadow hover:bg-white border border-slate-200"
+                            aria-label="Imagen siguiente"
+                        >
+                            <span className="text-2xl leading-none">›</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

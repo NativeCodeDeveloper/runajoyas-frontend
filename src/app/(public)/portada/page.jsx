@@ -47,9 +47,20 @@ export default function Portada() {
                 <div className="w-full ">
                     {publicacion && (
                         <Carrusel
-                            imagen1={publicacion.imagenPublicaciones_primera}
-                            imagen2={publicacion.imagenPublicaciones_segunda}
-                            imagen3={publicacion.imagenPublicaciones_tercera}
+
+                            imagen1={`https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ/${publicacion.imagenPublicaciones_primera}/portada`}
+
+                            imagen2={
+                                publicacion.imagenPublicaciones_segunda
+                                    ? `https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ/${publicacion.imagenPublicaciones_segunda}/portada`
+                                    : `https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ/${publicacion.imagenPublicaciones_primera}/portada`
+                            }
+
+                            imagen3={
+                                publicacion.imagenPublicaciones_tercera
+                                    ? `https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ/${publicacion.imagenPublicaciones_tercera}/portada`
+                                    : `https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ/${publicacion.imagenPublicaciones_primera}/portada`
+                            }
                         />
                     )}
                 </div>

@@ -341,9 +341,10 @@ export default function Publicaciones() {
     const VARIANT_CARD = 'card';
     const VARIANT_FULL = 'full';
     const VARIANT_MINI = 'mini';
+    const VARIANT_PORTADA = 'portada';
 
     // Utilidad para construir la URL de entrega de Cloudflare
-    function cfToSrc(imageId, variant = VARIANT_FULL) {
+    function cfToSrc(imageId, variant = VARIANT_CARD) {
         if (!imageId) return "";
         // Si ya es una URL completa (por compatibilidad), la retorna tal cual
         if (imageId.startsWith("http")) return imageId;
